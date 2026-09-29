@@ -72,6 +72,7 @@
       z-index: 0;
       pointer-events: none;
       opacity: 1;
+      background: radial-gradient(circle at 70% 25%, #2a0810 0%, #0D0305 45%, #050505 100%);
       image-rendering: -webkit-optimize-contrast;
       image-rendering: high-quality;
     }
@@ -1795,16 +1796,19 @@
         width: 100% !important;
         height: 100% !important;
         height: 100dvh !important;
+        filter: saturate(1.18) contrast(1.08) brightness(0.9) !important;
       }
 
       .vignette-overlay {
-        background: radial-gradient(circle at 50% 35%, rgba(5, 5, 5, 0) 0%, rgba(5, 5, 5, 0.25) 60%, rgba(5, 5, 5, 0.85) 100%);
+        background: radial-gradient(circle at 50% 36%, rgba(5, 5, 5, 0.08) 0%, rgba(5, 5, 5, 0.18) 48%, rgba(5, 5, 5, 0.52) 100%);
       }
 
       .ambient-red-glow {
-        width: min(300px, 60vw);
-        height: min(300px, 60vw);
-        opacity: 0.4;
+        width: min(360px, 64vw);
+        height: min(360px, 64vw);
+        opacity: 0.52;
+        right: 8%;
+        top: 10%;
       }
 
       .content-overlay {
@@ -1813,6 +1817,7 @@
         transform-style: flat;
         width: 100%;
         overflow: visible;
+        background: transparent;
       }
 
       section {
@@ -1827,8 +1832,14 @@
         justify-content: flex-start;
         transform-style: flat;
         overflow: visible;
-        background: rgba(5, 5, 5, 0.82);
-        border-bottom: 1px solid rgba(255, 48, 69, 0.08);
+        background: rgba(5, 5, 5, 0.14);
+        border-bottom: 1px solid rgba(255, 48, 69, 0.05);
+      }
+
+      .hero-scene,
+      #hero {
+        background: transparent;
+        border-bottom: none;
       }
 
       .hero-scene {
@@ -2220,6 +2231,185 @@
       section {
         padding-block: clamp(28px, 7vw, 44px);
       }
+    }
+
+    /* ================================================================
+       MOBILE FIX v2 — background visible, no "box" look
+    ================================================================ */
+    @media (max-width: 768px) {
+      html { height: auto; }
+      body { overflow-x: hidden; background: #050505; }
+
+      /* background image layer: fully visible, only a soft edge fade */
+      canvas#sequence-canvas {
+        filter: saturate(1.15) contrast(1.05) brightness(1) !important;
+      }
+      .vignette-overlay {
+        background: linear-gradient(180deg, rgba(5,5,5,0.35) 0%, rgba(5,5,5,0) 25%, rgba(5,5,5,0) 70%, rgba(5,5,5,0.4) 100%) !important;
+      }
+
+      /* remove the stacked "box" bands between sections */
+      section,
+      .hero-scene,
+      .about-scene,
+      .project-poster-scene,
+      .ai-demo-scene {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .content-overlay { background: transparent !important; }
+
+      /* keep text readable directly over the image */
+      .display-heading,
+      .section-tag,
+      .about-lead-statement,
+      .about-body-text p,
+      .project-big-title,
+      .project-body-desc,
+      .timeline-role-title,
+      .timeline-institution,
+      .contact-description,
+      .contact-hero-title,
+      .category-divider-label,
+      .skill-type-giant,
+      .skill-type-medium {
+        text-shadow: 0 1px 6px rgba(0,0,0,0.85), 0 2px 18px rgba(0,0,0,0.7);
+      }
+
+      /* cards become light glass instead of solid black boxes */
+      .project-visual-frame,
+      .statement-box,
+      .editorial-pill,
+      .ai-form-wrap,
+      .input-field,
+      .btn-outline {
+        background: rgba(8, 3, 5, 0.38) !important;
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important;
+      }
+      .project-visual-frame { border-color: rgba(255,48,69,0.28); }
+
+      /* nothing should push the page sideways */
+      section > *, .layer-foreground, .layer-visual { min-width: 0; max-width: 100%; }
+      pre, code, .visual-code-snippet { white-space: pre-wrap; word-break: break-word; overflow-x: auto; }
+    }
+
+    @media (max-width: 380px) {
+      .display-heading { font-size: clamp(20px, 6.6vw, 28px); }
+      .hero-title-headline { font-size: clamp(24px, 8vw, 32px); }
+      .hero-stats-row { gap: 12px 8px; }
+    }
+    /* ================================================================
+       MOBILE FIX v3 — text readability over background image
+    ================================================================ */
+    @media (max-width: 768px) {
+      /* 1. whole background dimmed evenly so image is visible but calm */
+      .vignette-overlay {
+        background: linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.5) 50%, rgba(5,5,5,0.6) 100%) !important;
+      }
+
+      /* 2. each section gets a soft dark scrim that fades at top/bottom (no hard box edges) */
+      section:not(.hero-scene):not(#hero) {
+        background: linear-gradient(180deg,
+          rgba(5,5,5,0) 0%,
+          rgba(5,5,5,0.55) 9%,
+          rgba(5,5,5,0.55) 91%,
+          rgba(5,5,5,0) 100%) !important;
+      }
+      /* hero: dark only behind the text area, image stays visible on top */
+      .hero-scene, #hero {
+        background: linear-gradient(180deg,
+          rgba(5,5,5,0.15) 0%,
+          rgba(5,5,5,0.5) 40%,
+          rgba(5,5,5,0.62) 100%) !important;
+      }
+
+      /* 3. brighter text + stronger halo so it separates from the image */
+      body, p, li, .hero-subtext, .about-body-text p, .project-body-desc, .contact-description {
+        color: #F2F2F2;
+      }
+      .hero-subtext, .about-body-text p, .project-body-desc, .contact-description,
+      .about-lead-statement, .timeline-institution, .statement-box p {
+        text-shadow: 0 1px 3px rgba(0,0,0,0.95), 0 0 14px rgba(0,0,0,0.9);
+      }
+      .display-heading, .hero-title-headline, .project-big-title,
+      .contact-hero-title, .timeline-role-title, .giant-year {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.95), 0 0 22px rgba(0,0,0,0.9);
+      }
+      .section-tag, .category-divider-label, .hero-meta-row {
+        text-shadow: 0 1px 3px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,0.95);
+      }
+
+      /* 4. cards more solid so text inside is clear */
+      .project-visual-frame, .statement-box, .ai-form-wrap {
+        background: rgba(8,3,5,0.72) !important;
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,48,69,0.3) !important;
+      }
+      .editorial-pill, .btn-outline {
+        background: rgba(8,3,5,0.7) !important;
+      }
+      .input-field { background: rgba(5,5,5,0.85) !important; }
+      .services-editorial-grid > div, .contact-info-item {
+        background: rgba(8,3,5,0.6);
+        border-radius: 12px;
+        padding: 14px 16px;
+      }
+    }
+    /* ================================================================
+       MOBILE FIX v4 — no black boxes, frosted glass instead
+    ================================================================ */
+    @media (max-width: 768px) {
+      /* remove all black section bands; only a light global dim remains */
+      section, section:not(.hero-scene):not(#hero), .hero-scene, #hero {
+        background: transparent !important;
+      }
+      .vignette-overlay {
+        background: linear-gradient(180deg, rgba(5,5,5,0.22) 0%, rgba(5,5,5,0.16) 50%, rgba(5,5,5,0.28) 100%) !important;
+      }
+
+      /* frosted glass cards: bg image stays visible but blurred behind text */
+      .project-visual-frame,
+      .statement-box,
+      .ai-form-wrap,
+      .services-editorial-grid > div,
+      .contact-info-item {
+        background: linear-gradient(135deg, rgba(255,255,255,0.13) 0%, rgba(255,48,69,0.10) 100%) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        backdrop-filter: blur(16px) saturate(140%);
+        border: 1px solid rgba(255,255,255,0.22) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 28px rgba(255,48,69,0.12), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+      }
+      .statement-box { border-left: 3px solid var(--accent-red) !important; }
+
+      /* pills, buttons, inputs: same glass, no black */
+      .editorial-pill,
+      .btn-outline {
+        background: rgba(255,255,255,0.12) !important;
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.28) !important;
+        box-shadow: 0 4px 14px rgba(255,48,69,0.15) !important;
+      }
+      .input-field {
+        background: rgba(255,255,255,0.10) !important;
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.28) !important;
+        color: #fff;
+      }
+      .input-field::placeholder { color: rgba(255,255,255,0.65); }
+
+      /* text stays crisp through shadow, not through black backing */
+      .project-visual-frame, .statement-box, .ai-form-wrap,
+      .services-editorial-grid > div, .contact-info-item {
+        text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      }
+      .visual-code-snippet { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 8px; }
     }
   </style>
 </head>
@@ -3124,7 +3314,8 @@
       }
 
       function resizeCanvas() {
-        const dpr = Math.max(window.devicePixelRatio || 1, 1);
+        const dprRaw = Math.max(window.devicePixelRatio || 1, 1);
+        const dpr = window.innerWidth <= 768 ? Math.min(dprRaw, 2) : dprRaw;
         const rect = canvas.getBoundingClientRect();
         const displayWidth = Math.round(rect.width || window.innerWidth);
         const displayHeight = Math.round(rect.height || window.innerHeight);
@@ -3163,6 +3354,7 @@
 
         const cw = canvas.width;
         const ch = canvas.height;
+        const isMobile = window.innerWidth <= 768;
 
         ctx.clearRect(0, 0, cw, ch);
 
@@ -3189,8 +3381,17 @@
           offsetY = 0;
         }
 
+        if (isMobile) {
+          // Full-bleed cover: image fills the whole screen (no shrinking / no empty edges).
+          // Slight upward focus so the subject stays visible on tall phone screens.
+          offsetX = Math.round((cw - drawWidth) * 0.5);
+          offsetY = Math.round((ch - drawHeight) * 0.42);
+        }
+        ctx.filter = 'none';
+
         // Draw ultra-sharp sequence frame with pixel-snapped coordinates
         ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        ctx.filter = 'none';
 
         // Render volumetric lighting bloom & atmospheric particle dust
         renderCinematicAtmosphere(cw, ch);
@@ -3438,7 +3639,8 @@
           }
         };
 
-        for (let i = 0; i < FRAME_COUNT; i++) {
+        const frameStep = window.innerWidth <= 768 ? 3 : 1;
+        for (let i = 0; i < FRAME_COUNT; i += frameStep) {
           const img = new Image();
           img.src = getFrameUrl(i);
 
