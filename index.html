@@ -212,6 +212,13 @@
       pointer-events: none;
     }
 
+    /* ---- Cleaner loader: keep only big logo + progress bar + status ---- */
+    .loader-corner,
+    .loader-side-info,
+    .loader-top-label {
+      display: none !important;
+    }
+
     .loader-container {
       position: relative;
       z-index: 10;
@@ -219,7 +226,8 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: center;
       padding: clamp(16px, 3.5vw, 48px);
       pointer-events: none;
       box-sizing: border-box;
@@ -1573,41 +1581,105 @@
       box-sizing: border-box;
     }
 
-    /* Footer bottom bar */
+    /* ==================== Footer — editorial redesign ==================== */
     footer {
-      padding: clamp(28px, 4vh, 48px) var(--container-padding-x);
-      background: #020202;
-      border-top: 1px solid rgba(255, 48, 69, 0.2);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 8px;
-      font-family: var(--font-display);
       position: relative;
       z-index: 10;
       width: 100%;
       box-sizing: border-box;
+      background: transparent;
+      border-top: none;
+      font-family: var(--font-display);
+      overflow: visible;
+      padding: clamp(24px, 4vh, 40px) var(--container-padding-x) clamp(32px, 5vh, 56px);
     }
 
-    .footer-name {
+    /* Floating glass bar — same recipe as .navbar */
+    .footer-bar {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: clamp(14px, 2vh, 18px) clamp(20px, 3vw, 32px);
+      background: rgba(8, 3, 5, 0.45);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border: 1px solid rgba(255, 45, 65, 0.22);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 0 28px rgba(255, 45, 65, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .footer-glow {
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 240px;
+      background: radial-gradient(ellipse at center, rgba(255, 48, 69, 0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .footer-brand-col .footer-name {
       font-size: clamp(13px, 1.4vw, 15px);
       font-weight: 800;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       color: var(--text-white);
+      white-space: nowrap;
     }
 
-    .footer-tagline {
-      font-size: clamp(10px, 1.1vw, 11px);
-      letter-spacing: 0.14em;
+    .footer-brand-col .footer-name span { color: var(--accent-red); }
+
+    .footer-tagline,
+    .footer-nav-col, .footer-contact-col, .footer-col-title,
+    .footer-back-to-top {
+      display: none;
+    }
+
+    .footer-social-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .footer-social-link {
+      font-family: var(--font-display);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      text-decoration: none;
+      padding: 6px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .footer-social-link:hover,
+    .footer-social-link:focus {
+      border-color: var(--accent-red);
+      background: rgba(255, 48, 69, 0.12);
+      color: var(--accent-highlight);
     }
 
     .footer-copy {
-      font-size: clamp(9px, 1vw, 10px);
-      letter-spacing: 0.15em;
-      color: rgba(255, 255, 255, 0.25);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.4);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .footer-bar {
+        flex-direction: column;
+        text-align: center;
+        gap: 14px;
+      }
     }
 
     /* ====================================================
@@ -2139,15 +2211,9 @@
         font-size: 14px;
       }
 
-      footer {
-        padding: 28px clamp(16px, 5vw, 24px);
-        background: #020202;
-      }
-
       .footer-tagline {
-        font-size: 10px;
+        font-size: 11.5px;
         word-break: break-word;
-        text-align: center;
         line-height: 1.5;
       }
 
@@ -2411,6 +2477,80 @@
       }
       .visual-code-snippet { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 8px; }
     }
+    /* Laptop/desktop: keep hero content clearly below the floating navbar (same as mobile) */
+    @media (min-width: 769px) {
+      .hero-scene {
+        padding-top: clamp(170px, 20vh, 230px);
+        padding-top: clamp(170px, 20dvh, 230px) !important;
+      }
+      .availability-tag { display: none !important; }
+    }
+    /* ================================================================
+       MOBILE FIX v5 — guarantee background image is visible on phones
+    ================================================================ */
+    @media (max-width: 768px) {
+      /* overflow:hidden on html+body can break fixed layers on mobile browsers */
+      html, body { overflow-x: clip; }
+
+      /* CSS fallback: first frame shows even if canvas drawing is delayed/fails */
+      canvas#sequence-canvas {
+        background-color: #0D0305;
+        background-image: url('./ezgif-1497078f24595cfd-jpg/ezgif-frame-001.jpg');
+        background-size: cover;
+        background-position: center 42%;
+        background-repeat: no-repeat;
+        z-index: 0 !important;
+        display: block !important;
+        visibility: visible !important;
+      }
+      .vignette-overlay { z-index: 1 !important; }
+      .content-overlay { position: relative; z-index: 10; }
+    }
+    /* ================================================================
+       MOBILE FIX v6 — loading animation: stop corner/text overlap
+       Aligns loader breakpoints with the site's 768px mobile breakpoint
+       and de-clutters the small screen to prevent any overlap.
+    ================================================================ */
+    @media (max-width: 768px) {
+      /* Corner labels (IDEAS/TECHNOLOGY.., editorial bottom text) were only
+         hidden below 640px — on 641-768px screens they collided with the
+         centered logo/progress bar. Hide them for all mobile widths. */
+      .loader-corner.bottom-left,
+      .loader-corner.bottom-right,
+      .loader-corner.top-left {
+        display: none !important;
+      }
+
+      /* Keep only the small "PORTFOLIO / LOADING..." tag, pinned clear of center content */
+      .loader-corner.top-right {
+        top: 16px;
+        right: 16px;
+        font-size: 10px;
+      }
+
+      /* Center block: never let it get wider than the safe area, and
+         guarantee spacing between logo / subtitle / bar / status so
+         nothing stacks on top of anything else */
+      .loader-center-content {
+        width: min(94%, 420px);
+        gap: 0;
+      }
+      .loader-main-logo { font-size: clamp(28px, 9vw, 44px); margin-bottom: 10px; }
+      .loader-subtitle { font-size: 10px; margin-bottom: 18px; white-space: normal; }
+      .loader-progress-wrap { max-width: 260px; margin-bottom: 12px; }
+      .loader-status-msg { font-size: 9.5px; }
+    }
+
+    /* Short / landscape phones: content can outgrow the viewport height,
+       which pushes the top-right tag to sit on top of the logo. Scale
+       everything down further and free up vertical room. */
+    @media (max-width: 768px) and (max-height: 700px) {
+      .loader-corner.top-right { display: none !important; }
+      .loader-top-label { margin-bottom: 8px; }
+      .loader-main-logo { font-size: clamp(24px, 8vw, 34px); margin-bottom: 6px; }
+      .loader-subtitle { margin-bottom: 12px; }
+      .loader-progress-wrap { margin-bottom: 8px; }
+    }
   </style>
 </head>
 
@@ -2593,7 +2733,7 @@
           <span>TAMIL NADU, INDIA</span>
         </div>
 
-        <div style="margin-bottom: 20px;">
+        <div class="availability-tag" style="margin-bottom: 20px;">
           <span class="editorial-pill">
             <span class="tag-bullet"></span> AVAILABLE FOR INTERNSHIPS & FULL-TIME ROLES
           </span>
@@ -2604,13 +2744,12 @@
           SOFTWARE ENGINEER & AI ARCHITECT
         </div>
 
-        <h1 class="hero-title-headline">
-          BUILDING<br>
-          <span class="text-accent-red">INTELLIGENT</span><br>
-          & SCALABLE<br>
-          DIGITAL SOLUTIONS.
-        </h1>
-
+      <h1 class="hero-title-headline">
+  DEVELOPER<br>
+  <span class="text-accent-red">AI ENTHUSIAST</span><br>
+  TECH<br>
+  EXPLORER.
+</h1>`g
         <p class="hero-subtext">
           MCA Student at Rathinam Technical Campus. Specializing in Full Stack Development (MERN), AI Workflows,
           automation, and modern cloud technologies.
@@ -2839,86 +2978,9 @@
       </div>
 
       <!-- PROJECT 03 POSTER -->
-      <div class="project-poster-scene">
-        <div class="layer-foreground">
-          <div class="project-header-meta">PROJECT 03 / FULL SCENE</div>
-          <h3 class="project-big-title">PLACEMENT STRATEGY GENERATOR</h3>
-          <div class="project-subtitle-tag">AI-Powered Preparation & Personalized Roadmap Platform</div>
-          <p class="project-body-desc">
-            Generates personalized study roadmaps, DSA topic guides, system design breakdowns, and interview preparation
-            strategies based on target job roles.
-          </p>
-          <ul class="project-bullets-list">
-            <li>Week-by-week customized preparation roadmap</li>
-            <li>Job description based topic prioritization</li>
-            <li>DSA & System Design topic breakdown</li>
-          </ul>
-          <div class="project-tech-cloud">
-            <span class="editorial-pill">React.js</span>
-            <span class="editorial-pill">Node.js</span>
-            <span class="editorial-pill">Tailwind CSS</span>
-            <span class="editorial-pill">LangChain</span>
-            <span class="editorial-pill">Gemini API</span>
-            <span class="editorial-pill">Claude API</span>
-          </div>
-        </div>
-
-        <div class="project-visual-frame layer-visual">
-          <div class="visual-frame-dots">
-            <div class="dot red"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-          </div>
-          <div class="visual-code-snippet">
-            <span style="color: var(--accent-red);">ROADMAP GENERATOR ACTIVE</span><br>
-            • Week 1-2: Advanced Data Structures & Graph Algorithms<br>
-            • Week 3-4: System Design & Microservices Architecture<br>
-            • Week 5-6: LangChain Agent Orchestration
-          </div>
-        </div>
-      </div>
-
-      <!-- PROJECT 04 POSTER -->
-      <div class="project-poster-scene">
-        <div class="layer-foreground">
-          <div class="project-header-meta">PROJECT 04 / FULL SCENE</div>
-          <h3 class="project-big-title">QR TICKET MANAGEMENT SYSTEM</h3>
-          <div class="project-subtitle-tag">Digital Ticket Generation, Validation & Access Control App</div>
-          <p class="project-body-desc">
-            End-to-end event ticketing system with instant QR generation, camera validation, and duplicate prevention.
-          </p>
-          <ul class="project-bullets-list">
-            <li>Instant QR ticket generation & camera scanning</li>
-            <li>Real-time verification & duplicate entry prevention</li>
-            <li>Dynamic cryptographic hash validation</li>
-          </ul>
-          <div class="project-tech-cloud">
-            <span class="editorial-pill">React.js</span>
-            <span class="editorial-pill">Express.js</span>
-            <span class="editorial-pill">MongoDB</span>
-            <span class="editorial-pill">QR Engine</span>
-            <span class="editorial-pill">REST API</span>
-          </div>
-        </div>
-
-        <div class="project-visual-frame layer-visual">
-          <div class="visual-frame-dots">
-            <div class="dot red"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-          </div>
-          <div class="visual-code-snippet">
-            <span style="color: #4CAF50;">[SCANNER ACTIVE] Scanning Ticket...</span><br>
-            Hash Validation: <span style="color: #4CAF50;">VERIFIED</span><br>
-            Status: CHECKED IN (Single Use Confirmed)
-          </div>
-        </div>
-      </div>
-
-      <!-- PROJECT 05 POSTER -->
       <div class="project-poster-scene" style="border-bottom: none;">
         <div class="layer-foreground">
-          <div class="project-header-meta">PROJECT 05 / FULL SCENE</div>
+          <div class="project-header-meta">PROJECT 03 / FULL SCENE</div>
           <h3 class="project-big-title">AI RESUME ANALYZER</h3>
           <div class="project-subtitle-tag">ATS Evaluation, Keyword Gap Analysis & Scoring Platform</div>
           <p class="project-body-desc">
@@ -3269,12 +3331,23 @@
 
     </section>
 
-    <!-- Footer Copyright Bar -->
+    <!-- Footer -->
     <footer>
-      <div class="footer-name">SANTHOSH S</div>
-      <div class="footer-tagline">MCA Student &nbsp;|&nbsp; Full Stack Developer &nbsp;|&nbsp; AI &amp; Automation
-        Enthusiast</div>
-      <div class="footer-copy">&copy; 2026 SANTHOSH S. All rights reserved.</div>
+      <div class="footer-bar">
+        <div class="footer-brand-col">
+          <div class="footer-name">SANTHOSH <span>S</span></div>
+        </div>
+
+        <div class="footer-social-row">
+          <a href="https://linkedin.com/in/santhosh-s-4a5150281" target="_blank" rel="noopener noreferrer"
+            class="footer-social-link">LinkedIn</a>
+          <a href="https://github.com/Santhosh636944" target="_blank" rel="noopener noreferrer"
+            class="footer-social-link">GitHub</a>
+          <a href="mailto:santhoshs.mca25@rathinam.in" class="footer-social-link">Email</a>
+        </div>
+
+        <div class="footer-copy">&copy; 2026 SANTHOSH S</div>
+      </div>
     </footer>
 
   </div>
@@ -3421,6 +3494,14 @@
           ctx.fillStyle = `rgba(255, 90, 98, ${p.alpha})`;
           ctx.fill();
         });
+      }
+
+      // Always start from the top on reload so hero never hides behind the navbar
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      if (!location.hash) {
+        window.scrollTo(0, 0);
+        window.addEventListener('load', () => window.scrollTo(0, 0));
+        window.addEventListener('pageshow', () => { if (!location.hash) window.scrollTo(0, 0); });
       }
 
       function updateScrollProgress() {
@@ -3622,6 +3703,7 @@
 
       function preloadImages() {
         const firstImg = new Image();
+        firstImg.onerror = () => console.error('BG frame NOT FOUND:', firstImg.src, '- check folder name/path & upload it to hosting');
         firstImg.src = getFrameUrl(0);
         firstImg.onload = () => {
           frames[0] = firstImg;
