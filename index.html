@@ -101,7 +101,8 @@
     }
 
     /* ====================================================
-       PREMIUM CINEMATIC PRELOADER — Visual Experience
+       CINEMATIC AI-SYSTEM PRELOADER
+       Phases: void -> beam -> logo -> orbital -> ready -> transition
     ==================================================== */
     .loader-overlay {
       position: fixed;
@@ -115,20 +116,13 @@
       justify-content: center;
       z-index: 999999;
       overflow: hidden;
-      opacity: 1;
       visibility: visible;
-      transition: opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1), transform 1.0s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.0s ease;
-    }
-
-    .loader-overlay.finishing .loader-eclipse-sphere {
-      transform: translate(-50%, -50%) scale(1.08);
-      box-shadow: 0 0 100px rgba(255, 30, 60, 0.45);
-      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 1;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
     }
 
     .loader-overlay.hidden {
       opacity: 0;
-      transform: scale(1.04);
       visibility: hidden;
       pointer-events: none;
     }
@@ -144,82 +138,49 @@
       opacity: 0.85;
     }
 
+    /* Soft atmospheric red glow, present from the first frame */
     .loader-atmosphere {
       position: absolute;
       top: 50%;
       left: 50%;
+      width: min(900px, 90vw);
+      height: min(900px, 90vw);
       transform: translate(-50%, -50%);
-      width: min(70vw, 70vh);
-      height: min(70vw, 70vh);
-      max-width: 900px;
-      max-height: 900px;
-      background: radial-gradient(circle, rgba(230, 20, 50, 0.22) 0%, rgba(160, 10, 30, 0.08) 45%, rgba(0, 0, 0, 0) 70%);
-      filter: blur(clamp(30px, 6vw, 70px));
-      pointer-events: none;
+      background: radial-gradient(circle, rgba(255, 45, 65, 0.16) 0%, rgba(255, 45, 65, 0.05) 42%, transparent 72%);
       z-index: 2;
-      border-radius: 50%;
-      animation: loaderAtmospherePulse 6s ease-in-out infinite alternate;
+      pointer-events: none;
+      opacity: 0.7;
+      transition: opacity 0.8s ease;
     }
 
-    @keyframes loaderAtmospherePulse {
-      0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.7; }
-      100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-    }
-
-    .loader-eclipse-sphere {
+    /* Phase 2: horizontal light beam sweep */
+    .loader-beam {
       position: absolute;
       top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: clamp(240px, 40vw, 540px);
-      height: clamp(240px, 40vw, 540px);
-      max-height: 60vh;
-      max-width: 60vh;
-      border-radius: 50%;
-      background: radial-gradient(circle at 50% 50%, #020203 0%, #070103 65%, #120306 100%);
-      box-shadow: 0 0 65px rgba(255, 30, 60, 0.3), inset 0 0 45px rgba(255, 20, 45, 0.4);
-      border: 1px solid rgba(255, 45, 65, 0.35);
-      z-index: 3;
-      pointer-events: none;
-      animation: eclipseSphereReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes eclipseSphereReveal {
-      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
-      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
-
-    .eclipse-rim-glow {
-      position: absolute;
-      inset: -2px;
-      border-radius: 50%;
-      background: conic-gradient(from 180deg at 50% 50%, rgba(255, 45, 65, 0.85) 0deg, rgba(255, 45, 65, 0.15) 120deg, rgba(192, 132, 252, 0.6) 240deg, rgba(255, 45, 65, 0.85) 360deg);
-      filter: blur(5px);
-      opacity: 0.75;
-      mask: radial-gradient(transparent 68%, black 70%);
-      -webkit-mask: radial-gradient(transparent 68%, black 70%);
-    }
-
-    .eclipse-purple-highlight {
-      position: absolute;
-      top: 10%;
-      right: 16%;
-      width: clamp(60px, 12vw, 140px);
-      height: clamp(60px, 12vw, 140px);
-      background: radial-gradient(circle, rgba(192, 132, 252, 0.35) 0%, transparent 70%);
-      filter: blur(22px);
-      border-radius: 50%;
+      left: -20%;
+      width: 140%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 45, 65, 0.9), #fff, rgba(255, 45, 65, 0.9), transparent);
+      box-shadow: 0 0 24px 4px rgba(255, 45, 65, 0.55);
+      transform: translate(-120%, -50%);
+      opacity: 0;
+      z-index: 4;
       pointer-events: none;
     }
 
-    /* ---- Cleaner loader: keep only big logo + progress bar + status ---- */
-    .loader-corner,
-    .loader-side-info,
-    .loader-top-label {
-      display: none !important;
+    @keyframes beamSweep {
+      0% { transform: translate(-120%, -50%); opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { transform: translate(120%, -50%); opacity: 0; }
     }
 
-    .loader-container {
+    #loader.phase-beam .loader-beam {
+      animation: beamSweep 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* Main stage: stacked, centered content */
+    .loader-stage {
       position: relative;
       z-index: 10;
       width: 100%;
@@ -228,384 +189,263 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: clamp(16px, 3.5vw, 48px);
-      pointer-events: none;
+      gap: clamp(12px, 2vh, 20px);
+      padding: clamp(16px, 4vw, 40px);
       box-sizing: border-box;
     }
 
-    .loader-corner {
-      position: absolute;
-      z-index: 12;
-      pointer-events: none;
-      animation: loaderElemReveal 1s ease forwards;
-      animation-delay: 0.8s;
-      opacity: 0;
-    }
-
-    .loader-corner.top-left {
-      top: clamp(16px, 3.5vw, 48px);
-      left: clamp(16px, 3.5vw, 48px);
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-    }
-
-    .loader-accent-line {
-      width: 2px;
-      height: 38px;
-      background: var(--accent-red);
-      box-shadow: 0 0 8px var(--accent-red);
-    }
-
-    .loader-corner-text {
-      display: flex;
-      flex-direction: column;
-      font-family: var(--font-display);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      color: rgba(255, 255, 255, 0.45);
-      line-height: 1.45;
-    }
-
-    .loader-corner.top-right {
-      top: clamp(16px, 3.5vw, 48px);
-      right: clamp(16px, 3.5vw, 48px);
-      text-align: right;
-      font-family: var(--font-display);
-      font-size: 11px;
-      letter-spacing: 0.2em;
-    }
-
-    .loader-corner-tag {
-      color: rgba(255, 255, 255, 0.7);
-      font-weight: 700;
-      margin-bottom: 2px;
-    }
-
-    .loader-corner-status {
-      color: var(--accent-red);
-      font-weight: 600;
-    }
-
-    .dot-pulse {
-      display: inline-block;
-      animation: dotPulse 1.4s infinite;
-    }
-
-    @keyframes dotPulse {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
-    }
-
-    .loader-center-content {
+    /* Phase 4: orbital rings */
+    .loader-orbital {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: min(92%, 720px);
-      z-index: 12;
+      width: clamp(220px, 32vw, 440px);
+      height: clamp(220px, 32vw, 440px);
+      transform: translate(-50%, -50%) scale(0.85);
+      opacity: 0;
       pointer-events: none;
-      padding-inline: 12px;
-      box-sizing: border-box;
+      z-index: 1;
     }
 
-    .loader-top-label {
-      display: flex;
-      align-items: center;
-      gap: clamp(6px, 1.5vw, 12px);
+    #loader.phase-orbital .loader-orbital {
+      animation: orbitalFadeIn 0.6s ease forwards;
+    }
+
+    @keyframes orbitalFadeIn {
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    #loader.phase-ready .loader-orbital {
+      filter: brightness(1.3) saturate(1.15);
+      transition: filter 0.6s ease;
+    }
+
+    #loader.phase-transition .loader-orbital {
+      animation: orbitalExpand 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes orbitalExpand {
+      to { transform: translate(-50%, -50%) scale(1.7); opacity: 0; }
+    }
+
+    .orbit-ring {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(255, 45, 65, 0.28);
+      border-radius: 50%;
+    }
+
+    .ring-outer {
+      animation: ringRotateCW 9s linear infinite;
+    }
+
+    .ring-inner {
+      inset: 15%;
+      border-color: rgba(192, 132, 252, 0.24);
+      animation: ringRotateCCW 6.5s linear infinite;
+    }
+
+    @keyframes ringRotateCW { to { transform: rotate(360deg); } }
+    @keyframes ringRotateCCW { to { transform: rotate(-360deg); } }
+
+    .orbit-dot {
+      position: absolute;
+      top: -3px;
+      left: calc(50% - 3px);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #FF3045;
+      box-shadow: 0 0 10px 3px rgba(255, 45, 65, 0.8);
+    }
+
+    .ring-inner .orbit-dot {
+      background: #C084FC;
+      box-shadow: 0 0 10px 3px rgba(192, 132, 252, 0.75);
+    }
+
+    /* Phase 3: logo reveal via mask */
+    .loader-logo-wrap {
+      position: relative;
+      z-index: 5;
+    }
+
+    .loader-logo-text {
       font-family: var(--font-display);
-      font-size: clamp(9px, 1.2vw, 11px);
-      font-weight: 600;
-      letter-spacing: 0.3em;
-      color: rgba(255, 255, 255, 0.75);
-      text-transform: uppercase;
-      margin-bottom: clamp(10px, 2vh, 18px);
-      opacity: 0;
-      animation: loaderElemReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      animation-delay: 0.1s;
+      font-weight: 800;
+      font-size: clamp(34px, 7vw, 78px);
+      letter-spacing: 0.01em;
+      color: #FFFFFF;
+      text-align: center;
+      text-shadow: 0 0 40px rgba(255, 45, 65, 0.25);
+      margin: 0;
       white-space: nowrap;
     }
 
-    .label-dash {
-      width: clamp(16px, 3vw, 28px);
-      height: 1px;
-      background: rgba(255, 45, 65, 0.75);
-      box-shadow: 0 0 6px rgba(255, 45, 65, 0.8);
-      flex-shrink: 0;
+    .logo-mask {
+      display: inline-block;
+      clip-path: inset(0 100% 0 0);
     }
 
-    .loader-main-logo {
-      font-family: var(--font-display);
-      font-size: clamp(26px, 6vw, 68px);
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      color: #FFFFFF;
-      text-transform: uppercase;
-      line-height: 1.1;
-      margin-bottom: clamp(8px, 1.5vh, 14px);
-      opacity: 0;
-      animation: logoRevealAnim 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      animation-delay: 0.05s;
-      word-break: break-word;
+    #loader.phase-logo .logo-mask {
+      animation: logoMaskReveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes logoRevealAnim {
-      0% {
-        opacity: 0;
-        transform: translateY(18px) scale(0.94);
-        filter: blur(8px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0);
-      }
+    @keyframes logoMaskReveal {
+      to { clip-path: inset(0 0 0 0); }
     }
 
     .purple-accent-s {
       color: #C084FC;
       font-weight: 800;
-      display: inline-block;
-      animation: purpleSGlowPulse 3s ease-in-out infinite alternate;
+      text-shadow: 0 0 16px rgba(192, 132, 252, 0.9), 0 0 34px rgba(168, 85, 247, 0.5);
     }
 
-    @keyframes purpleSGlowPulse {
-      0% {
-        text-shadow: 0 0 14px rgba(192, 132, 252, 0.85), 0 0 28px rgba(168, 85, 247, 0.45);
-        color: #C084FC;
-      }
-      100% {
-        text-shadow: 0 0 22px rgba(192, 132, 252, 1), 0 0 45px rgba(168, 85, 247, 0.8), 0 0 60px rgba(168, 85, 247, 0.35);
-        color: #D8B4FE;
-      }
-    }
-
-    .loader-subtitle {
-      font-family: var(--font-display);
-      font-size: clamp(9px, 1.3vw, 12px);
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      color: rgba(235, 235, 235, 0.8);
-      text-transform: uppercase;
-      margin-bottom: clamp(16px, 3.5vh, 32px);
-      opacity: 0;
-      animation: loaderElemReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      animation-delay: 0.45s;
-    }
-
-    .cross-accent {
-      color: var(--accent-red);
-      margin: 0 4px;
-      font-weight: 700;
-      display: inline-block;
-    }
-
-    .loader-progress-wrap {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      width: 100%;
-      max-width: min(360px, 85vw);
-      margin-bottom: 14px;
-      opacity: 0;
-      animation: loaderElemReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      animation-delay: 1.0s;
-    }
-
-    .loader-track {
-      flex: 1;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-      overflow: hidden;
+    /* Phase 5: system ready text */
+    .loader-ready-block {
       position: relative;
+      z-index: 5;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(6px);
     }
 
-    .loader-bar {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #D90429 0%, #FF2D41 70%, #FF6B81 100%);
-      box-shadow: 0 0 14px #FF2D41, 0 0 24px rgba(255, 45, 65, 0.6);
-      border-radius: 3px;
-      transition: width 0.15s ease-out;
+    #loader.phase-ready .loader-ready-block {
+      animation: readyReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .loader-percentage {
+    @keyframes readyReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loader-system-text {
       font-family: var(--font-display);
-      font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.3em;
+      font-size: clamp(13px, 1.6vw, 18px);
       color: #FFFFFF;
-      min-width: 40px;
-      text-align: right;
+      text-transform: uppercase;
     }
 
-    .loader-status-msg {
+    .ready-accent {
+      color: var(--accent-red);
+      text-shadow: 0 0 16px rgba(255, 45, 65, 0.7);
+    }
+
+    .loader-welcome-text {
+      margin-top: 6px;
       font-family: var(--font-display);
-      font-size: clamp(9px, 1.2vw, 11px);
-      font-weight: 600;
-      letter-spacing: 0.22em;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      font-size: clamp(9px, 1.1vw, 11px);
       color: rgba(255, 255, 255, 0.55);
       text-transform: uppercase;
-      min-height: 20px;
-      opacity: 0;
-      animation: loaderElemReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      animation-delay: 1.1s;
     }
 
-    .loader-side-info {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 11;
-      pointer-events: none;
-      opacity: 0;
-      animation: loaderElemReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      animation-delay: 1.2s;
-    }
-
-    .loader-side-info.left-side {
-      left: clamp(20px, 3.5vw, 48px);
+    /* Phase 4: technical labels */
+    .loader-tech-labels {
+      position: relative;
+      z-index: 5;
       display: flex;
-      flex-direction: column;
-      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 18px;
+      max-width: min(92vw, 480px);
+      margin-top: 2px;
     }
 
-    .step-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .tech-label {
       font-family: var(--font-display);
-      font-size: 10.5px;
+      font-size: 9.5px;
       font-weight: 600;
       letter-spacing: 0.18em;
-      color: rgba(255, 255, 255, 0.3);
-      transition: color 0.35s ease, opacity 0.35s ease;
-    }
-
-    .step-item.active {
-      color: #FFFFFF;
-    }
-
-    .step-indicator {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      transition: all 0.35s ease;
-    }
-
-    .step-item.active .step-indicator {
-      background: var(--accent-red);
-      box-shadow: 0 0 10px var(--accent-red);
-      transform: scale(1.4);
-    }
-
-    .step-num {
-      color: var(--accent-red);
-      opacity: 0.5;
-      font-size: 9.5px;
-    }
-
-    .step-item.active .step-num {
-      opacity: 1;
-    }
-
-    .loader-side-info.right-side {
-      right: clamp(20px, 3.5vw, 48px);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 12px;
-    }
-
-    .spec-tag {
-      font-family: var(--font-display);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      color: rgba(255, 255, 255, 0.35);
+      color: rgba(255, 255, 255, 0.6);
       text-transform: uppercase;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(8px);
     }
 
-    .side-red-line {
-      width: 32px;
-      height: 1px;
-      background: var(--accent-red);
-      box-shadow: 0 0 6px var(--accent-red);
-      margin-top: 6px;
+    #loader.phase-orbital .tech-label {
+      animation: labelReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .loader-corner.bottom-left {
-      bottom: clamp(16px, 3.5vw, 48px);
-      left: clamp(16px, 3.5vw, 48px);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    @keyframes labelReveal {
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .loader-editorial {
-      font-family: var(--font-display);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.2em;
-      color: rgba(255, 255, 255, 0.4);
-      line-height: 1.5;
+    .tech-label:nth-child(1) { animation-delay: 0s; }
+    .tech-label:nth-child(2) { animation-delay: 0.12s; }
+    .tech-label:nth-child(3) { animation-delay: 0.24s; }
+    .tech-label:nth-child(4) { animation-delay: 0.36s; }
+    .tech-label:nth-child(5) { animation-delay: 0.48s; }
+
+    /* Phase 6: cinematic transition */
+    .loader-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 45, 65, 0.9) 0%, rgba(255, 45, 65, 0.25) 40%, transparent 72%);
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      z-index: 3;
+      pointer-events: none;
     }
 
-    .loader-editorial-line {
-      width: 24px;
-      height: 1px;
-      background: var(--accent-red);
+    #loader.phase-transition .loader-wave {
+      animation: waveExpand 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
-    .loader-corner.bottom-right {
-      bottom: clamp(16px, 3.5vw, 48px);
-      right: clamp(16px, 3.5vw, 48px);
+    @keyframes waveExpand {
+      0% { opacity: 0.9; transform: translate(-50%, -50%) scale(0); }
+      60% { opacity: 0.5; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(28); }
     }
 
-    .loader-editorial-right {
-      font-family: var(--font-display);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      color: rgba(255, 255, 255, 0.4);
+    #loader.phase-transition .loader-logo-wrap,
+    #loader.phase-transition .loader-ready-block,
+    #loader.phase-transition .loader-tech-labels {
+      animation: stageFadeScale 0.5s ease forwards;
     }
 
-    @keyframes loaderElemReveal {
-      0% { opacity: 0; transform: translateY(12px); filter: blur(4px); }
-      100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+    @keyframes stageFadeScale {
+      to { opacity: 0; transform: scale(0.9); filter: blur(4px); }
     }
 
-    /* Loader Responsive Controls */
-    @media (max-width: 992px) {
-      .loader-side-info.left-side,
-      .loader-side-info.right-side {
+    /* Reduced motion: short, elegant, non-animated reveal */
+    @media (prefers-reduced-motion: reduce) {
+      .loader-beam,
+      .loader-orbital,
+      .orbit-ring {
         display: none !important;
       }
+      .logo-mask {
+        clip-path: inset(0 0 0 0) !important;
+        animation: none !important;
+      }
+      .loader-ready-block,
+      .tech-label {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+      }
+      .loader-wave { display: none !important; }
+      .loader-overlay,
+      .loader-overlay.hidden {
+        transition: opacity 0.3s ease, visibility 0.3s ease !important;
+      }
     }
 
-    @media (max-width: 640px), (max-height: 640px) {
-      .loader-corner.bottom-left,
-      .loader-corner.bottom-right,
-      .loader-corner.top-left {
-        display: none !important;
+    @media (max-width: 480px) {
+      .loader-orbital {
+        width: min(78vw, 260px);
+        height: min(78vw, 260px);
       }
-      .loader-corner.top-right {
-        top: 14px;
-        right: 14px;
-      }
-      .loader-center-content {
-        width: 95%;
-      }
-      .loader-progress-wrap {
-        max-width: 260px;
+      .tech-label {
+        font-size: 8.5px;
       }
     }
 
@@ -1815,11 +1655,11 @@
         padding-bottom: 30px;
       }
 
-      .loader-corner.bottom-left,
-      .loader-corner.bottom-right,
-      .loader-side-info {
-        display: none !important;
+      .loader-orbital {
+        width: min(55vw, 220px);
+        height: min(55vw, 220px);
       }
+      .loader-logo-text { font-size: clamp(26px, 7vw, 44px); }
     }
 
     /* ================================================================
@@ -2507,49 +2347,22 @@
       .content-overlay { position: relative; z-index: 10; }
     }
     /* ================================================================
-       MOBILE FIX v6 — loading animation: stop corner/text overlap
-       Aligns loader breakpoints with the site's 768px mobile breakpoint
-       and de-clutters the small screen to prevent any overlap.
+       Cinematic loader — mobile tuning: smaller orbital/logo/labels,
+       no edge-touching, same phased feeling on small screens.
     ================================================================ */
     @media (max-width: 768px) {
-      /* Corner labels (IDEAS/TECHNOLOGY.., editorial bottom text) were only
-         hidden below 640px — on 641-768px screens they collided with the
-         centered logo/progress bar. Hide them for all mobile widths. */
-      .loader-corner.bottom-left,
-      .loader-corner.bottom-right,
-      .loader-corner.top-left {
-        display: none !important;
-      }
-
-      /* Keep only the small "PORTFOLIO / LOADING..." tag, pinned clear of center content */
-      .loader-corner.top-right {
-        top: 16px;
-        right: 16px;
-        font-size: 10px;
-      }
-
-      /* Center block: never let it get wider than the safe area, and
-         guarantee spacing between logo / subtitle / bar / status so
-         nothing stacks on top of anything else */
-      .loader-center-content {
-        width: min(94%, 420px);
-        gap: 0;
-      }
-      .loader-main-logo { font-size: clamp(28px, 9vw, 44px); margin-bottom: 10px; }
-      .loader-subtitle { font-size: 10px; margin-bottom: 18px; white-space: normal; }
-      .loader-progress-wrap { max-width: 260px; margin-bottom: 12px; }
-      .loader-status-msg { font-size: 9.5px; }
+      .loader-stage { gap: clamp(8px, 1.6vh, 14px); padding: clamp(14px, 5vw, 28px); }
+      .loader-orbital { width: min(70vw, 300px); height: min(70vw, 300px); }
+      .loader-logo-text { font-size: clamp(28px, 9vw, 46px); white-space: normal; }
+      .loader-tech-labels { gap: 6px 12px; max-width: 92vw; }
+      .tech-label { font-size: 8.5px; }
     }
 
-    /* Short / landscape phones: content can outgrow the viewport height,
-       which pushes the top-right tag to sit on top of the logo. Scale
-       everything down further and free up vertical room. */
+    /* Short / landscape phones: content can outgrow the viewport height. */
     @media (max-width: 768px) and (max-height: 700px) {
-      .loader-corner.top-right { display: none !important; }
-      .loader-top-label { margin-bottom: 8px; }
-      .loader-main-logo { font-size: clamp(24px, 8vw, 34px); margin-bottom: 6px; }
-      .loader-subtitle { margin-bottom: 12px; }
-      .loader-progress-wrap { margin-bottom: 8px; }
+      .loader-orbital { width: min(50vw, 200px); height: min(50vw, 200px); }
+      .loader-logo-text { font-size: clamp(22px, 7vw, 32px); }
+      .loader-tech-labels { display: none; }
     }
   </style>
 </head>
@@ -2558,119 +2371,48 @@
 
   <!-- Cinematic Premium Preloader Overlay -->
   <div class="loader-overlay" id="loader">
-    <!-- Canvas for glowing dust particles & atmosphere -->
+    <!-- Phase 1: ambient red/purple dust particles -->
     <canvas id="loader-canvas"></canvas>
-    
-    <!-- Atmospheric Red Glow -->
+
+    <!-- Phase 1: soft atmospheric red glow -->
     <div class="loader-atmosphere"></div>
 
-    <!-- Central Eclipse Sphere -->
-    <div class="loader-eclipse-sphere">
-      <div class="eclipse-rim-glow"></div>
-      <div class="eclipse-purple-highlight"></div>
-    </div>
+    <!-- Phase 2: horizontal light beam sweep -->
+    <div class="loader-beam"></div>
 
-    <!-- Layout Grid -->
-    <div class="loader-container">
+    <!-- Phase 6: expanding crimson wave -->
+    <div class="loader-wave"></div>
 
-      <!-- TOP LEFT -->
-      <div class="loader-corner top-left">
-        <div class="loader-accent-line"></div>
-        <div class="loader-corner-text">
-          <span>IDEAS</span>
-          <span>TECHNOLOGY</span>
-          <span>CREATIVITY</span>
-          <span>IMPACT</span>
+    <div class="loader-stage">
+
+      <!-- Phase 4: orbital rings -->
+      <div class="loader-orbital">
+        <div class="orbit-ring ring-outer">
+          <span class="orbit-dot"></span>
+        </div>
+        <div class="orbit-ring ring-inner">
+          <span class="orbit-dot"></span>
         </div>
       </div>
 
-      <!-- TOP RIGHT -->
-      <div class="loader-corner top-right">
-        <div class="loader-corner-tag">PORTFOLIO</div>
-        <div class="loader-corner-status">LOADING<span class="dot-pulse">...</span></div>
+      <!-- Phase 3: logo reveal -->
+      <div class="loader-logo-wrap">
+        <h1 class="loader-logo-text"><span class="logo-mask">SANTHOSH <span class="purple-accent-s">S</span></span></h1>
       </div>
 
-      <!-- CENTER VISUAL & MAIN TYPOGRAPHY STACK -->
-      <div class="loader-center-content">
-        <!-- Top Label -->
-        <div class="loader-top-label">
-          <span class="label-dash"></span>
-          <span>WELCOME TO MY WORLD</span>
-          <span class="label-dash"></span>
-        </div>
-
-        <!-- Main Logo -->
-        <h1 class="loader-main-logo">
-          SANTHOSH <span class="purple-accent-s">S</span>
-        </h1>
-
-        <!-- Subtitle -->
-        <div class="loader-subtitle">
-          FULL STACK DEVELOPER <span class="cross-accent">×</span> AI &amp; AUTOMATION
-        </div>
-
-        <!-- Progress Bar & Percentage -->
-        <div class="loader-progress-wrap">
-          <div class="loader-track">
-            <div class="loader-bar" id="loader-bar"></div>
-          </div>
-          <div class="loader-percentage" id="loader-percentage">00%</div>
-        </div>
-
-        <!-- Loading Status -->
-        <div class="loader-status-msg" id="loader-status-msg">
-          LOADING ASSETS
-        </div>
+      <!-- Phase 4: technical labels -->
+      <div class="loader-tech-labels">
+        <span class="tech-label">SYSTEM INITIALIZING</span>
+        <span class="tech-label">AI MODULES</span>
+        <span class="tech-label">FULL STACK</span>
+        <span class="tech-label">CREATIVE ENGINE</span>
+        <span class="tech-label">PORTFOLIO SYSTEM</span>
       </div>
 
-      <!-- LEFT SIDE INFORMATION BLOCK -->
-      <div class="loader-side-info left-side">
-        <div class="step-item step-1 active" id="step-01">
-          <span class="step-indicator"></span>
-          <span class="step-num">01</span>
-          <span class="step-name">LOADING ASSETS</span>
-        </div>
-        <div class="step-item step-2" id="step-02">
-          <span class="step-indicator"></span>
-          <span class="step-num">02</span>
-          <span class="step-name">INITIALIZING UI</span>
-        </div>
-        <div class="step-item step-3" id="step-03">
-          <span class="step-indicator"></span>
-          <span class="step-num">03</span>
-          <span class="step-name">PREPARING SECTIONS</span>
-        </div>
-        <div class="step-item step-4" id="step-04">
-          <span class="step-indicator"></span>
-          <span class="step-num">04</span>
-          <span class="step-name">READY</span>
-        </div>
-      </div>
-
-      <!-- RIGHT SIDE INFORMATION BLOCK -->
-      <div class="loader-side-info right-side">
-        <div class="spec-tag">WEB DEVELOPMENT</div>
-        <div class="spec-tag">AI SOLUTIONS</div>
-        <div class="spec-tag">AUTOMATION</div>
-        <div class="spec-tag">CREATIVE APPS</div>
-        <div class="side-red-line"></div>
-      </div>
-
-      <!-- BOTTOM LEFT -->
-      <div class="loader-corner bottom-left">
-        <div class="loader-editorial">
-          TURNING<br>
-          IDEAS INTO<br>
-          REAL SOLUTIONS
-        </div>
-        <div class="loader-editorial-line"></div>
-      </div>
-
-      <!-- BOTTOM RIGHT -->
-      <div class="loader-corner bottom-right">
-        <div class="loader-editorial-right">
-          CODE &bull; AUTOMATE &bull; CREATE &bull; GROW
-        </div>
+      <!-- Phase 5: system ready -->
+      <div class="loader-ready-block">
+        <div class="loader-system-text">SYSTEM <span class="ready-accent">READY.</span></div>
+        <div class="loader-welcome-text">WELCOME TO MY PORTFOLIO.</div>
       </div>
 
     </div>
@@ -2744,12 +2486,13 @@
           SOFTWARE ENGINEER & AI ARCHITECT
         </div>
 
-      <h1 class="hero-title-headline">
-  DEVELOPER<br>
-  <span class="text-accent-red">AI ENTHUSIAST</span><br>
-  TECH<br>
-  EXPLORER.
-</h1>`g
+        <h1 class="hero-title-headline">
+          BUILDING<br>
+          <span class="text-accent-red">INTELLIGENT</span><br>
+          & SCALABLE<br>
+          DIGITAL SOLUTIONS.
+        </h1>
+
         <p class="hero-subtext">
           MCA Student at Rathinam Technical Campus. Specializing in Full Stack Development (MERN), AI Workflows,
           automation, and modern cloud technologies.
@@ -3360,8 +3103,6 @@
       const canvas = document.getElementById('sequence-canvas');
       const ctx = canvas.getContext('2d');
       const loader = document.getElementById('loader');
-      const loaderBar = document.getElementById('loader-bar');
-      const loaderText = document.getElementById('loader-text');
 
       const frames = new Array(FRAME_COUNT);
       let loadedCount = 0;
@@ -3547,6 +3288,7 @@
       const loaderCanvas = document.getElementById('loader-canvas');
       const loaderCtx = loaderCanvas ? loaderCanvas.getContext('2d') : null;
       let loaderAnimId = null;
+      let loaderParticleBoost = 1;
       const loaderParticles = [];
 
       function initLoaderCanvas() {
@@ -3586,7 +3328,7 @@
 
           // Floating Particles
           loaderParticles.forEach(p => {
-            p.y -= p.speedY;
+            p.y -= p.speedY * loaderParticleBoost;
             if (p.y < 0) {
               p.y = loaderCanvas.height;
               p.x = Math.random() * loaderCanvas.width;
@@ -3611,94 +3353,42 @@
 
       initLoaderCanvas();
 
-      let loaderFinished = false;
-      const loaderStartTime = performance.now();
-      const REVEAL_DURATION = 800; // 0.0s to 0.8s: SANTHOSH S reveals completely (progress stays at 0%)
-      const PROGRESS_DURATION = 2000; // 0.8s to 2.8s: Exact 2000ms deterministic progress from 0% to 100%
-
-      const loaderSteps = [
-        { threshold: 0, msg: 'LOADING ASSETS...', activeId: 'step-01' },
-        { threshold: 25, msg: 'INITIALIZING UI...', activeId: 'step-02' },
-        { threshold: 50, msg: 'LOADING <span style="color:var(--accent-red);font-weight:700;">PROJECTS...</span>', activeId: 'step-03' },
-        { threshold: 75, msg: 'INITIALIZING <span style="color:var(--accent-red);font-weight:700;">AI MODULES...</span>', activeId: 'step-03' },
-        { threshold: 100, msg: '<span style="color:var(--accent-red);font-weight:800;letter-spacing:0.3em;">READY.</span>', activeId: 'step-04' }
-      ];
-
-      function updateLoaderUI(percent) {
-        const pInt = Math.min(100, Math.max(0, Math.floor(percent)));
-        
-        const loaderBar = document.getElementById('loader-bar');
-        const loaderPercentage = document.getElementById('loader-percentage');
-        const loaderStatusMsg = document.getElementById('loader-status-msg');
-        
-        if (loaderBar) loaderBar.style.width = pInt + '%';
-        if (loaderPercentage) loaderPercentage.textContent = (pInt < 10 ? '0' + pInt : pInt) + '%';
-
-        let matchedStep = loaderSteps[0];
-        for (let i = 0; i < loaderSteps.length; i++) {
-          if (pInt >= loaderSteps[i].threshold) {
-            matchedStep = loaderSteps[i];
-          }
-        }
-
-        if (loaderStatusMsg && loaderStatusMsg.innerHTML !== matchedStep.msg) {
-          loaderStatusMsg.innerHTML = matchedStep.msg;
-        }
-
-        // Update left side 01, 02, 03, 04 active indicators
-        ['step-01', 'step-02', 'step-03', 'step-04'].forEach(stepId => {
-          const el = document.getElementById(stepId);
-          if (el) {
-            if (stepId === matchedStep.activeId) {
-              el.classList.add('active');
-            } else {
-              el.classList.remove('active');
-            }
-          }
-        });
-      }
-
-      function tickLoader() {
-        const now = performance.now();
-        const totalElapsed = now - loaderStartTime;
-
-        // STEP 1: 0.0s to 0.8s — SANTHOSH S reveals completely. Progress remains strictly at 0%.
-        if (totalElapsed < REVEAL_DURATION) {
-          updateLoaderUI(0);
-          requestAnimationFrame(tickLoader);
-          return;
-        }
-
-        // STEP 2: 0.8s to 2.8s — Exact 2000ms continuous linear progress from 0% to 100%
-        const progressElapsed = totalElapsed - REVEAL_DURATION;
-        const progressRatio = Math.min(1.0, progressElapsed / PROGRESS_DURATION);
-        const currentPercent = progressRatio * 100;
-
-        updateLoaderUI(currentPercent);
-
-        if (progressRatio >= 1.0 && !loaderFinished) {
-          loaderFinished = true;
-          finishLoaderSequence();
-          return;
-        }
-
-        if (!loaderFinished) {
-          requestAnimationFrame(tickLoader);
-        }
-      }
+      const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       function finishLoaderSequence() {
-        updateLoaderUI(100);
+        const loaderEl = document.getElementById('loader');
+        if (!loaderEl) return;
+        loaderEl.classList.add('phase-transition');
+        loaderParticleBoost = 3.2;
         setTimeout(() => {
-          const loaderEl = document.getElementById('loader');
-          if (loaderEl) {
-            loaderEl.classList.add('finishing');
-            setTimeout(() => {
-              loaderEl.classList.add('hidden');
-              if (loaderAnimId) cancelAnimationFrame(loaderAnimId);
-            }, 700); // 0.7s smooth dissolve transition
-          }
-        }, 350); // brief pause on READY.
+          loaderEl.classList.add('hidden');
+          if (loaderAnimId) cancelAnimationFrame(loaderAnimId);
+        }, prefersReducedMotion ? 250 : 750);
+      }
+
+      function runLoaderTimeline() {
+        const loaderEl = document.getElementById('loader');
+        if (!loaderEl) return;
+
+        if (prefersReducedMotion) {
+          // Short, elegant, non-animated reveal: logo + status only, then exit.
+          loaderEl.classList.add('phase-logo', 'phase-ready');
+          setTimeout(finishLoaderSequence, 650);
+          return;
+        }
+
+        // Cinematic timeline (approx. total 3s):
+        // 0.0-0.5s black void + particles (default state, nothing to trigger)
+        // 0.5-1.0s red light beam sweep
+        setTimeout(() => loaderEl.classList.add('phase-beam'), 500);
+        // 1.0-1.3s SANTHOSH S logo reveal
+        setTimeout(() => loaderEl.classList.add('phase-logo'), 1000);
+        // 1.3-2.1s orbital rings + technical labels
+        setTimeout(() => loaderEl.classList.add('phase-orbital'), 1300);
+        // 2.1-2.6s SYSTEM READY.
+        setTimeout(() => loaderEl.classList.add('phase-ready'), 2100);
+        // 2.6-3.0s cinematic transition into the portfolio
+        setTimeout(finishLoaderSequence, 2600);
       }
 
       function preloadImages() {
@@ -3736,7 +3426,7 @@
           };
         }
 
-        requestAnimationFrame(tickLoader);
+        runLoaderTimeline();
       }
 
       window.addEventListener('scroll', updateScrollProgress, { passive: true });
